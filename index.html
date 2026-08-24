@@ -1,33 +1,96 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Music Tutor</title>
-    <script src="https://tailwindcss.com"></script>
+    <!-- Tailwind Play CDN Script -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full text-center">
-        <h1 class="text-2xl font-bold text-slate-800 mb-2">AI Music Tutor</h1>
-        <p class="text-slate-600 mb-6">Singing & Recorder</p>
+<body class="bg-slate-900 text-white min-h-screen">
+
+    <!-- Responsive Main Grid Container: 1 column on phone, 3 columns on 15" laptop -->
+    <main class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-8 max-w-7xl mx-auto">
         
-        <div class="space-y-4">
-            <button onclick="startMic()" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-blue-700 transition">
-                Start Recording / Activate Microphone
-            </button>
-            <div id="status" class="text-sm text-slate-500">Please click the button above to start.</div>
-        </div>
-    </div>
+        <!-- COLUMN 1: System Controls & Mode Toggles -->
+        <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-white mb-1">AI KSSR Music Tutor</h1>
+                <p class="text-slate-400 text-sm mb-6">MOE Recorder & Singing Analysis System</p>
+                
+                <!-- Setup Toggles: Stack on tiny devices, side-by-side on larger windows -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                    <button class="flex-1 bg-teal-600 hover:bg-teal-700 py-3 px-4 rounded-xl font-medium transition text-sm">
+                        🎙️ Singing Mode
+                    </button>
+                    <button class="flex-1 bg-slate-700 hover:bg-slate-600 py-3 px-4 rounded-xl font-medium transition text-sm">
+                        🎵 Recorder Mode
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Mic Button and Feedback Log -->
+            <div class="space-y-4">
+                <button onclick="startMic()" class="w-full bg-blue-600 text-white font-semibold py-4 px-6 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">
+                    Start Recording / Activate Microphone
+                </button>
+                <div id="status" class="text-center text-sm text-slate-400 bg-slate-900/50 p-3 rounded-xl border border-slate-950">
+                    Please click the button above to begin.
+                </div>
+            </div>
+        </section>
+
+        <!-- COLUMN 2 & 3: Live AI Pitch Assessment Graphic Dashboard -->
+        <section class="md:col-span-2 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-400">📊 Real-Time Pitch Analysis</h2>
+                    <span class="bg-blue-500/20 text-blue-400 text-xs px-2.5 py-1 rounded-full font-semibold tracking-wide">AI LIVE MONITOR</span>
+                </div>
+                
+                <!-- Responsive Canvas Workspace placeholder for wave trackers -->
+                <div class="w-full h-56 bg-slate-950 rounded-xl border border-slate-900 flex items-center justify-center mb-4 relative overflow-hidden">
+                    <p class="text-slate-600 text-sm font-medium z-10">Pitch Waveform Graph (Auto-resizes based on device width)</p>
+                    <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-teal-500/10 to-transparent"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FULL LOWER BAND GRID: KSSR Syllabus Matrices & Intelligent Diagnostic Output -->
+        <section class="md:col-span-3 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+            <h2 class="text-xl font-bold text-amber-400 mb-4">📝 Technical Diagnostics & Smart Feedback</h2>
+            
+            <!-- Dynamic parameters wrap cleanly into rows depending on viewport profiles -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
+                    <div class="text-xs text-slate-400 mb-1">Current KSSR Syllabus Song</div>
+                    <div class="text-base font-semibold text-slate-200">Rekoder Sukan Tahunan</div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
+                    <div class="text-xs text-slate-400 mb-1">AI Difficulty Level</div>
+                    <div class="text-base font-semibold text-amber-400">Adaptive (Tempo: 75 BPM)</div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
+                    <div class="text-xs text-slate-400 mb-1">Current Notation Accuracy</div>
+                    <div class="text-base font-semibold text-emerald-400">88% (Excellent!)</div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
+                    <div class="text-xs text-slate-400 mb-1">Fingering Technique Analysis</div>
+                    <div class="text-sm font-medium text-rose-400">Squeak detected! Please ensure all recorder tone holes are fully covered.</div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script>
         async function startMic() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                document.getElementById('status').innerText = "Activate Microphone! Prepare to analysis pitch.";
-                document.getElementById('status').className = "text-sm text-green-600 font-medium";
+                document.getElementById('status').innerText = "🎙️ Microphone Active! Ready to detect pitch.";
+                document.getElementById('status').className = "text-center text-sm text-emerald-400 font-semibold bg-emerald-950/30 p-3 rounded-xl border border-emerald-900/50";
             } catch (err) {
-                document.getElementById('status').innerText = "Error: Microphone access denied.";
-                document.getElementById('status').className = "text-sm text-red-600 font-medium";
+                document.getElementById('status').innerText = "❌ Error: Microphone access denied.";
+                document.getElementById('status').className = "text-center text-sm text-rose-400 font-semibold bg-rose-950/30 p-3 rounded-xl border border-rose-900/50";
             }
         }
     </script>
