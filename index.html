@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Music Tutor</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full text-center">
+        <h1 class="text-2xl font-bold text-slate-800 mb-2">AI Music Tutor</h1>
+        <p class="text-slate-600 mb-6">Singing & Recorder</p>
+        
+        <div class="space-y-4">
+            <button onclick="startMic()" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-blue-700 transition">
+                Start Recording / Activate Microphone
+            </button>
+            <div id="status" class="text-sm text-slate-500">Please click the button above to start.</div>
+        </div>
+    </div>
+
+    <script>
+        async function startMic() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                document.getElementById('status').innerText = "Activate Microphone! Prepare to analysis pitch.";
+                document.getElementById('status').className = "text-sm text-green-600 font-medium";
+            } catch (err) {
+                document.getElementById('status').innerText = "Error: Microphone access denied.";
+                document.getElementById('status').className = "text-sm text-red-600 font-medium";
+            }
+        }
+    </script>
+</body>
+</html>
