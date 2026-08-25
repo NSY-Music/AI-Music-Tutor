@@ -212,11 +212,45 @@
             }
             
             const txt = document.getElementById('engineStatus');
-            txt.innerText = "⏳ Initializing native processing arrays...";
+            txt.innerText = "⏳Initializing native processing arrays...";
             txt.style.color = "#fbbf24";
 
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                // FIX: Force create/resume routine to handle aggressive browser privacy policies
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            await audioCtx.resume();
+        }
+
+        micSource = audioCtx.createMediaStreamSource(stream);
+        scriptNode = audioCtx.createScriptProcessor(2048, 1, 1);
+        scriptNode.onaudioprocess = processIncomingAudio;
+        
+        micSource.connect(scriptNode);
+        scriptNode.connect(audioCtx.destination);
+        
+        isEngineRunning = true;
+        txt.innerText = "🎙️ AI Audio Monitor Active! Perform KSSR Piece.";
+        txt.style.color = "#10b981";
+        
+        const badge = document.getElementById('liveBadge');
+        badge.innerText = "AI LIVE";
+        badge.style.backgroundColor = "rgba(16,185,129,0.2)";
+        badge.style.color = "#10b981";
+        
+        document.getElementById('actionBtn').innerText = "Stop Assessment Engine";
+        document.getElementById('actionBtn').className = "btn bg-red-600 hover:bg-red-700 text-white";
+
+        runVisualLoop();
+    } catch (err) {
+        txt.innerText = "❌ Initialization failed: Check device permissions or mic connection.";
+        txt.style.color = "#ef4444";
+        console.error(err);
+    }
+}
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 micSource = audioCtx.createMediaStreamSource(stream);
                 
