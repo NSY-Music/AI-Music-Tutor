@@ -4,182 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Music Tutor</title>
-    <!-- Tailwind CSS for Responsive Layout -->
-    <script src="https://tailwindcss.com"></script>
-    <!-- Include ML5.js Library for AI Pitch Detection -->
+    <!-- Self-contained layout styling using native CSS grid configurations -->
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            max-w: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        @media (min-width: 768px) {
+            main {
+                grid-template-columns: 1fr 2fr;
+            }
+            .lower-band {
+                grid-column: span 2;
+            }
+        }
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .lower-band {
+                grid-column: span 3;
+            }
+            .middle-card {
+                grid-column: span 2;
+            }
+        }
+        section {
+            background-color: #1e293b;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .mode-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (min-width: 480px) {
+            .mode-container {
+                flex-direction: row;
+            }
+        }
+        .btn-mode {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        .btn-active { background-color: #0d9488; color: white; }
+        .btn-inactive { background-color: #334155; color: white; }
+        .btn-action {
+            width: 100%;
+            background-color: #2563eb;
+            color: white;
+            font-weight: 600;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 16px;
+        }
+        .btn-action:hover { background-color: #1d4ed8; }
+        .status-box {
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+            background-color: rgba(15,23,42,0.5);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #0f172a;
+            margin-top: 16px;
+        }
+        .visual-display {
+            width: 100%;
+            height: 224px;
+            background-color: #020617;
+            border-radius: 12px;
+            border: 1px solid #0f172a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        #bigNote {
+            font-size: 64px;
+            font-weight: 900;
+            color: #334155;
+        }
+        .param-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        @media (min-width: 480px) { .param-grid { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 1024px) { .param-grid { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+        .param-card {
+            background-color: rgba(15,23,42,0.5);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #0f172a;
+        }
+        .param-title { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+        .param-value { font-size: 16px; font-weight: 600; }
+    </style>
+    <!-- Core Audio ML5 Script Definition -->
     <script src="https://unpkg.com"></script>
 </head>
-<body class="bg-slate-900 text-white min-h-screen">
+<body>
 
-    <!-- Responsive Main Grid Container: 1 column on mobile, 3 columns on a 15" laptop -->
-    <main class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-8 max-w-7xl mx-auto">
-        
-        <!-- COLUMN 1: System Controls & Mode Toggles -->
-        <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+    <main>
+        <!-- CARD 1: Controls -->
+        <section>
             <div>
-                <h1 class="text-2xl font-bold text-white mb-1">AI Music Tutor</h1>
-                <p class="text-slate-400 text-sm mb-6">MOE Recorder & Singing Analysis System</p>
+                <h1 style="font-size:24px; font-weight:700; margin:0 0 4px 0;">AI Music Tutor</h1>
+                <p style="font-size:14px; color:#94a3b8; margin:0 0 24px 0;">MOE Recorder & Singing Analysis System</p>
                 
-                <!-- Mode Selection Toggles -->
-                <div class="flex flex-col sm:flex-row gap-3 mb-6">
-                    <button id="btnSinging" onclick="setMode('singing')" class="flex-1 bg-teal-600 hover:bg-teal-700 py-3 px-4 rounded-xl font-medium transition text-sm">
-                        🎙️ Singing Mode
-                    </button>
-                    <button id="btnRecorder" onclick="setMode('recorder')" class="flex-1 bg-slate-700 hover:bg-slate-600 py-3 px-4 rounded-xl font-medium transition text-sm">
-                        🎵 Recorder Mode
-                    </button>
+                <div class="mode-container">
+                    <button id="btnSinging" onclick="setMode('singing')" class="btn-mode btn-active">🎙️ Singing Mode</button>
+                    <button id="btnRecorder" onclick="setMode('recorder')" class="btn-mode btn-inactive">🎵 Recorder Mode</button>
                 </div>
             </div>
 
-            <!-- Main Control Buttons -->
-            <div class="space-y-4">
-                <button id="btnStart" onclick="setupAudio()" class="w-full bg-blue-600 text-white font-semibold py-4 px-6 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">
-                    Start Recording & AI Engine
-                </button>
-                <div id="status" class="text-center text-sm text-slate-400 bg-slate-900/50 p-3 rounded-xl border border-slate-950">
-                    Click the button above to begin.
-                </div>
+            <div>
+                <button id="btnStart" onclick="setupAudio()" class="btn-action">Start Recording & AI Engine</button>
+                <div id="status" class="status-box">Click the button above to begin.</div>
             </div>
         </section>
 
-        <!-- COLUMN 2 & 3: Live AI Pitch Assessment Graphic Dashboard -->
-        <section class="md:col-span-2 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
-            <div>
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold text-blue-400">📊 Real-Time Pitch Analysis</h2>
-                    <span id="aiLabel" class="bg-slate-700 text-slate-400 text-xs px-2.5 py-1 rounded-full font-semibold tracking-wide">AI INACTIVE</span>
-                </div>
-                
-                <!-- Visual Feedback Readouts -->
-                <div class="w-full h-56 bg-slate-950 rounded-xl border border-slate-900 flex flex-col items-center justify-center mb-4 relative overflow-hidden p-4">
-                    <div id="bigNote" class="text-6xl font-black text-slate-700 transition-colors duration-150">--</div>
-                    <div id="freqDisplay" class="text-sm text-slate-500 mt-2">0.00 Hz</div>
-                    <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-teal-500/5 to-transparent"></div>
-                </div>
+        <!-- CARD 2: Monitoring Workspace Display -->
+        <section class="middle-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="font-size:20px; font-weight:700; color:#60a5fa; margin:0;">📊 Real-Time Pitch Analysis</h2>
+                <span id="aiLabel" style="background:rgba(51,65,85,0.5); color:#94a3b8; font-size:12px; padding:4px 10px; border-radius:12px; font-weight:600;">AI INACTIVE</span>
             </div>
-        </section>
-
-        <!-- FULL LOWER BAND GRID: KSSR Syllabus Matrices & Intelligent Diagnostic Output -->
-        <section class="md:col-span-3 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-            <h2 class="text-xl font-bold text-amber-400 mb-4">📝 Technical Diagnostics & Smart Feedback</h2>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
-                    <div class="text-xs text-slate-400 mb-1">Target Curriculum Note</div>
-                    <div id="targetNoteDisplay" class="text-base font-semibold text-slate-200">Note G4 (392 Hz)</div>
+            <div class="visual-display">
+                <div id="bigNote">--</div>
+                <div id="freqDisplay" style="font-size:14px; color:#64748b; margin-top:8px;">0.00 Hz</div>
+            </div>
+        </section>
+
+        <!-- CARD 3: Lower Band Data Parameter Diagnostics Matrix -->
+        <section class="lower-band">
+            <h2 style="font-size:20px; font-weight:700; color:#fbbf24; margin:0;">📝 Technical Diagnostics & Smart Feedback</h2>
+            
+            <div class="param-grid">
+                <div class="param-card">
+                    <div class="param-title">Target Curriculum Note</div>
+                    <div id="targetNoteDisplay" class="param-value">Note G4 (392 Hz)</div>
                 </div>
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
-                    <div class="text-xs text-slate-400 mb-1">AI Difficulty / Tempo</div>
-                    <div id="tempoDisplay" class="text-base font-semibold text-amber-400">Normal (Tempo: 75 BPM)</div>
+                <div class="param-card">
+                    <div class="param-title">AI Difficulty / Tempo</div>
+                    <div id="tempoDisplay" class="param-value" style="color:#fbbf24;">Normal (75 BPM)</div>
                 </div>
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
-                    <div class="text-xs text-slate-400 mb-1">Session Accuracy Score</div>
-                    <div id="accuracyDisplay" class="text-base font-semibold text-emerald-400">0%</div>
+                <div class="param-card">
+                    <div class="param-title">Session Accuracy Score</div>
+                    <div id="accuracyDisplay" class="param-value" style="color:#34d399;">0%</div>
                 </div>
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-950">
-                    <div class="text-xs text-slate-400 mb-1">Fingering / Vocal Technique Analysis</div>
-                    <div id="diagnosticFeedback" class="text-sm font-medium text-slate-400">Waiting for audio source...</div>
+                <div class="param-card">
+                    <div class="param-title">Fingering / Vocal Technique Analysis</div>
+                    <div id="diagnosticFeedback" style="font-size:14px; color:#94a3b8; font-weight:500;">Waiting for audio source...</div>
                 </div>
             </div>
         </section>
     </main>
 
     <script>
-        // Core Architecture Configurations
         let audioContext;
         let micStream;
         let pitchEngine;
         let currentMode = 'singing'; 
         let isTracking = false;
 
-        // KSSR Primary Syllabus Target Profile Data Matrix (Notes: G4, A4, B4)
         const kssrTargets = {
             G4: { minHz: 380, maxHz: 405, label: "G4" },
             A4: { minHz: 425, maxHz: 455, label: "A4" },
             B4: { minHz: 480, maxHz: 510, label: "B4" }
         };
-        let activeTargetKey = 'G4'; // Default baseline curriculum note to match
-
-        // Adaptive Scaffolding State Metrics
+        let activeTargetKey = 'G4';
         let totalChecks = 0;
         let correctChecks = 0;
         let currentTempo = 75;
 
         function setMode(mode) {
             currentMode = mode;
-            const singBtn = document.getElementById('btnSinging');
-            const recBtn = document.getElementById('btnRecorder');
-            
-            if(mode === 'singing') {
-                singBtn.className = "flex-1 bg-teal-600 hover:bg-teal-700 py-3 px-4 rounded-xl font-medium transition text-sm";
-                recBtn.className = "flex-1 bg-slate-700 hover:bg-slate-600 py-3 px-4 rounded-xl font-medium transition text-sm";
-            } else {
-                recBtn.className = "flex-1 bg-teal-600 hover:bg-teal-700 py-3 px-4 rounded-xl font-medium transition text-sm";
-                singBtn.className = "flex-1 bg-slate-700 hover:bg-slate-600 py-3 px-4 rounded-xl font-medium transition text-sm";
-            }
+            document.getElementById('btnSinging').className = mode === 'singing' ? 'btn-mode btn-active' : 'btn-mode btn-inactive';
+            document.getElementById('btnRecorder').className = mode === 'recorder' ? 'btn-mode btn-active' : 'btn-mode btn-inactive';
         }
 
         async function setupAudio() {
             if (isTracking) return;
-            
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "⏳ Loading AI Audio Engine Framework...";
-            statusDiv.className = "text-center text-sm text-amber-400 bg-amber-950/20 p-3 rounded-xl border border-amber-900/50";
+            document.getElementById('status').innerText = "⏳ Loading AI Audio Engine Framework...";
+            document.getElementById('status').style.color = "#fbbf24";
 
             try {
-                // Initialise device native microphone capture stream
                 micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const source = audioContext.createMediaStreamSource(micStream);
-
-                // Initialise CREPE pre-trained model engine via ML5
                 const modelUrl = 'https://jsdelivr.net';
                 pitchEngine = ml5.pitchDetection(modelUrl, audioContext, source, modelLoaded);
             } catch (err) {
-                statusDiv.innerText = "❌ Error: Microphone access denied by user device.";
-                statusDiv.className = "text-center text-sm text-rose-400 font-semibold bg-rose-950/30 p-3 rounded-xl border border-rose-900/50";
+                document.getElementById('status').innerText = "❌ Error: Microphone access denied.";
+                document.getElementById('status').style.color = "#f87171";
                 console.error(err);
             }
         }
 
         function modelLoaded() {
             isTracking = true;
-            document.getElementById('status').innerText = "🎙️ AI Monitor Live! Sing or Play your Recorder.";
-            document.getElementById('status').className = "text-center text-sm text-emerald-400 font-semibold bg-emerald-950/30 p-3 rounded-xl border border-emerald-900/50";
-            
-            const aiLabel = document.getElementById('aiLabel');
-            aiLabel.innerText = "AI ACTIVE";
-            aiLabel.className = "bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold tracking-wide";
-            
+            document.getElementById('status').innerText = "🎙️ AI Monitor Live! Speak or Play.";
+            document.getElementById('status').style.color = "#34d399";
+            document.getElementById('aiLabel').innerText = "AI ACTIVE";
+            document.getElementById('aiLabel').style.background = "rgba(52,211,153,0.2)";
+            document.getElementById('aiLabel').style.color = "#34d399";
             document.getElementById('btnStart').disabled = true;
-            document.getElementById('btnStart').className = "w-full bg-slate-700 text-slate-500 font-semibold py-4 px-6 rounded-xl cursor-not-allowed";
-            
-            // Begin tracking real-time sound frequencies looping continuously
+            document.getElementById('btnStart').style.background = "#475569";
             getPitch();
         }
 
         function getPitch() {
             if (!isTracking) return;
-
             pitchEngine.getPitch((err, frequency) => {
-                if (err) console.error(err);
-                
                 const bigNote = document.getElementById('bigNote');
                 const freqDisplay = document.getElementById('freqDisplay');
-                const diagnostic = document.getElementById('diagnosticFeedback');
-
-                if (frequency) {
-                    const formattedFreq = frequency.toFixed(2);
-                    freqDisplay.innerText = `${formattedFreq} Hz`;
-                    
-                    // Match current raw audio frequency to target curriculum threshold configurations
-                    const target = kssrTargets[activeTargetKey];
-                    totalChecks++;
-
-                    if (frequency >= target.minHz && frequency <= target.maxHz) {
-// Correct Pitch Execution StatecorrectChecks++;bigNote.innerText = target.label;bigNote.className = "text-6xl font-black text-emerald-400 transition-colors duration-150";diagnostic.innerText = "Excellent Pitch accuracy! Keep holding the tone steady.";diagnostic.className = "text-sm font-medium text-emerald-400";} else {
-                        // Error State Execution LoopbigNote.className = "text-6xl font-black text-rose-400 transition-colors duration-150";if (currentMode === 'recorder') {
-                        // High Pitch overblowing diagnostic signature tracking (Squeaking)if (frequency > target.maxHz * 1.5) {bigNote.innerText = "⚠️ SQUEAK";diagnostic.innerText = "Squeak detected! Soften your breath support and seal your finger holes completely.";} else if (frequency < target.minHz) {bigNote.innerText = "♭ FLAT";diagnostic.innerText = "Pitch is too flat. Blow with slightly firmer, more consistent air speed.";} else {bigNote.innerText = "♯ SHARP";diagnostic.innerText = "Pitch is sharp. Relax your breath pressure slightly.";}} else {
-                        // Vocal Singing Mode diagnostic signaturesif (frequency < target.minHz) {bigNote.innerText = "LOW";diagnostic.innerText = "Pitch too low. Drop your jaw more and support the note from your diaphragm.";} else {bigNote.innerText = "HIGH";diagnostic.innerText = "Pitch too high. Relax your vocal cords slightly to stabilize tone.";}}diagnostic.className = "text-sm font-medium text-rose-400";}
-                        // Dynamically render current structural accuracy percentageslet currentAccuracy = Math.round((correctChecks / totalChecks) * 100);document.getElementById('accuracyDisplay').innerText = ${currentAccuracy}%;
-                        // Evaluate Adaptive Difficulty Progression Layer (ZPD execution checking thresholds)if (totalChecks >= 150) { // Every ~3-4 seconds of sustained tracking feedback datarunAdaptiveScaffolding(currentAccuracy);// Reset evaluation slice metricstotalChecks = 0;correctChecks = 0;}} else {// No Audio Detected / Silence StatebigNote.innerText = "--";bigNote.className = "text-6xl font-black text-slate-700 transition-colors duration-150";}// Infinite execution callback loop recursively running frame updatessetTimeout(() => { getPitch(); }, 25);});}function runAdaptiveScaffolding(accuracy) {const tempoDisplay = document.getElementById('tempoDisplay');const targetDisplay = document.getElementById('targetNoteDisplay');if (accuracy >= 80) {// Flow state: Student mastered current target step. Advance target complexity patterns.if (activeTargetKey === 'G4') {activeTargetKey = 'A4';currentTempo += 5;targetDisplay.innerText = "Note A4 (440 Hz)";tempoDisplay.innerText = Fast (Tempo: ${currentTempo} BPM);} else if (activeTargetKey === 'A4') {activeTargetKey = 'B4';currentTempo += 5;targetDisplay.innerText = "Note B4 (494 Hz)";tempoDisplay.innerText = Expert (Tempo: ${currentTempo} BPM);}} else if (accuracy < 55) {// Frustration avoidance safety scaffolding fallback loopsif (currentTempo > 60) {currentTempo -= 10;tempoDisplay.innerText = Slowing down (Tempo: ${currentTempo} BPM);} else if (activeTargetKey === 'B4') {activeTargetKey = 'A4';targetDisplay.innerText = "Note A4 (440 Hz)";} else if (activeTargetKey === 'A4') {activeTargetKey = 'G4';targetDisplay.innerText = "Note G4 (392 Hz)";}}}
+const diagnostic = document.getElementById('diagnosticFeedback');
+            if (frequency) {freqDisplay.innerText = ${frequency.toFixed(2)} Hz;const target = kssrTargets[activeTargetKey];totalChecks++;
+            if (frequency >= target.minHz && frequency <= target.maxHz) {correctChecks++;bigNote.innerText = target.label;bigNote.style.color = "#34d399";diagnostic.innerText = "Excellent Pitch accuracy! Keep holding steady.";diagnostic.style.color = "#34d399";} else {bigNote.style.color = "#f87171";if (currentMode === 'recorder') 
+            {if (frequency > target.maxHz * 1.5) {bigNote.innerText = "⚠️ SQUEAK";diagnostic.innerText = "Squeak detected! Soften breath support and seal holes completely.";} else if (frequency < target.minHz) {bigNote.innerText = "♭ FLAT";diagnostic.innerText = "Too flat. Blow with slightly firmer, more consistent air speed.";} else {bigNote.innerText = "♯ SHARP";diagnostic.innerText = "Too sharp. Relax breath pressure slightly.";}} else {bigNote.innerText = frequency < target.minHz ? "LOW" : "HIGH";diagnostic.innerText = frequency < target.minHz ? "Pitch too low. Support note from diaphragm." : "Pitch too high. Relax vocal cords slightly.";}diagnostic.style.color = "#f87171";}let accuracy = Math.round((correctChecks / totalChecks) * 100);document.getElementById('accuracyDisplay').innerText = ${accuracy}%;
+            if (totalChecks >= 100) {runAdaptiveScaffolding(accuracy);totalChecks = 0; correctChecks = 0;}} else {bigNote.innerText = "--";bigNote.style.color = "#475569";}setTimeout(() => { getPitch(); }, 30);});}function runAdaptiveScaffolding(accuracy) {const tempoDisplay = document.getElementById('tempoDisplay');const targetDisplay = document.getElementById('targetNoteDisplay');
+            if (accuracy >= 80) {if (activeTargetKey === 'G4') { activeTargetKey = 'A4'; currentTempo += 5; targetDisplay.innerText = "Note A4 (440 Hz)"; }else if (activeTargetKey === 'A4') { activeTargetKey = 'B4'; currentTempo += 5; targetDisplay.innerText = "Note B4 (494 Hz)"; }tempoDisplay.innerText = Fast (${currentTempo} BPM);} else if (accuracy < 55) {if (currentTempo > 60) currentTempo -= 10;else if (activeTargetKey === 'B4') activeTargetKey = 'A4';else if (activeTargetKey === 'A4') activeTargetKey = 'G4';targetDisplay.innerText = Note ${activeTargetKey};tempoDisplay.innerText = Slowing down (${currentTempo} BPM);}}
