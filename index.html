@@ -3,258 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Music Tutor</title>
-    <!-- Self-contained layout styling using native CSS grid configurations -->
+    <title>AI KSSR Music Tutor - Sukan Tahunan Module</title>
     <style>
         body {
-            background-color: #0f172a;
-            color: #ffffff;
+            background-color: #090d16;
+            color: #f8fafc;
             font-family: system-ui, -apple-system, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             min-height: 100vh;
             box-sizing: border-box;
         }
         main {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 24px;
-            max-w: 1200px;
+            gap: 20px;
+            max-w: 1300px;
             margin: 0 auto;
-            padding: 20px;
-        }
-        @media (min-width: 768px) {
-            main {
-                grid-template-columns: 1fr 2fr;
-            }
-            .lower-band {
-                grid-column: span 2;
-            }
         }
         @media (min-width: 1024px) {
-            main {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-            .lower-band {
-                grid-column: span 3;
-            }
-            .middle-card {
-                grid-column: span 2;
-            }
+            main { grid-template-columns: 1fr 2.5fr; }
+            .full-row { grid-column: span 3; }
         }
         section {
-            background-color: #1e293b;
-            padding: 24px;
+            background-color: #111827;
+            border: 1px solid #1f2937;
             border-radius: 16px;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         .mode-container {
             display: flex;
-            flex-direction: column;
             gap: 12px;
-            margin-bottom: 24px;
+            margin: 16px 0;
         }
-        @media (min-width: 480px) {
-            .mode-container {
-                flex-direction: row;
-            }
-        }
-        .btn-mode {
+        .btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             border-radius: 12px;
             border: none;
-            font-weight: 500;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
             font-size: 14px;
+            transition: background-color 0.2s, transform 0.1s;
         }
-        .btn-active { background-color: #0d9488; color: white; }
-        .btn-inactive { background-color: #334155; color: white; }
-        .btn-action {
-            width: 100%;
-            background-color: #2563eb;
-            color: white;
-            font-weight: 600;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 16px;
-        }
-        .btn-action:hover { background-color: #1d4ed8; }
+        .btn:active { transform: scale(0.98); }
+        .btn-teal { background-color: #0d9488; color: white; }
+        .btn-slate { background-color: #374151; color: #9ca3af; }
+        .btn-blue { background-color: #2563eb; color: white; width: 100%; padding: 18px; font-size: 16px; }
         .status-box {
             text-align: center;
+            background-color: #030712;
+            padding: 14px;
+            border-radius: 12px;
             font-size: 14px;
-            color: #94a3b8;
-            background-color: rgba(15,23,42,0.5);
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #0f172a;
-            margin-top: 16px;
+            color: #9ca3af;
+            margin-top: 14px;
+            border: 1px solid #1f2937;
         }
-        .visual-display {
-            width: 100%;
-            height: 224px;
-            background-color: #020617;
-            border-radius: 12px;
-            border: 1px solid #0f172a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: 16px;
+        .stave-wrapper {
+            background-color: #030712;
+            border-radius: 14px;
+            border: 1px solid #1f2937;
+            overflow: hidden;
+            margin-top: 14px;
+            position: relative;
         }
-        #bigNote {
-            font-size: 64px;
-            font-weight: 900;
-            color: #334155;
-        }
-        .param-grid {
+        canvas { display: block; width: 100%; height: 260px; }
+        .grid-4 {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 16px;
-            margin-top: 16px;
+            gap: 14px;
+            margin-top: 14px;
         }
-        @media (min-width: 480px) { .param-grid { grid-template-columns: 1fr 1fr; } }
-        @media (min-width: 1024px) { .param-grid { grid-template-columns: 1fr 1fr 1fr 1fr; } }
-        .param-card {
-            background-color: rgba(15,23,42,0.5);
+        @media (min-width: 640px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 1200px) { .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+        .metric-card {
+            background-color: #030712;
             padding: 16px;
             border-radius: 12px;
-            border: 1px solid #0f172a;
+            border: 1px solid #1f2937;
         }
-        .param-title { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
-        .param-value { font-size: 16px; font-weight: 600; }
+        .metric-title { font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: 700; }
+        .metric-value { font-size: 20px; font-weight: 800; margin-top: 4px; }
     </style>
-    <!-- Core Audio ML5 Script Definition -->
-    <script src="https://unpkg.com"></script>
 </head>
 <body>
 
     <main>
-        <!-- CARD 1: Controls -->
+        <!-- CONTROLS CONTAINER -->
         <section>
             <div>
-                <h1 style="font-size:24px; font-weight:700; margin:0 0 4px 0;">AI Music Tutor</h1>
-                <p style="font-size:14px; color:#94a3b8; margin:0 0 24px 0;">MOE Recorder & Singing Analysis System</p>
+                <h1 style="font-size: 26px; font-weight: 800; margin: 0; color: #38bdf8;">AI KSSR Music Tutor</h1>
+                <p style="font-size: 13px; color: #9ca3af; margin: 4px 0 20px 0;">Malaysian Curriculum Smart Interface</p>
                 
                 <div class="mode-container">
-                    <button id="btnSinging" onclick="setMode('singing')" class="btn-mode btn-active">🎙️ Singing Mode</button>
-                    <button id="btnRecorder" onclick="setMode('recorder')" class="btn-mode btn-inactive">🎵 Recorder Mode</button>
+                    <button id="modeSinging" onclick="toggleMode('singing')" class="btn btn-teal">🎙️ Singing Mode</button>
+                    <button id="modeRecorder" onclick="toggleMode('recorder')" class="btn btn-slate">🎵 Recorder Mode</button>
                 </div>
             </div>
 
             <div>
-                <button id="btnStart" onclick="setupAudio()" class="btn-action">Start Recording & AI Engine</button>
-                <div id="status" class="status-box">Click the button above to begin.</div>
+                <button id="actionBtn" onclick="toggleEngine()" class="btn btn-blue">Activate Audio Engine</button>
+                <div id="engineStatus" class="status-box">System Offline. Grant mic access to initiate.</div>
             </div>
         </section>
 
-        <!-- CARD 2: Monitoring Workspace Display -->
-        <section class="middle-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="font-size:20px; font-weight:700; color:#60a5fa; margin:0;">📊 Real-Time Pitch Analysis</h2>
-                <span id="aiLabel" style="background:rgba(51,65,85,0.5); color:#94a3b8; font-size:12px; padding:4px 10px; border-radius:12px; font-weight:600;">AI INACTIVE</span>
+        <!-- LIVE VISUAL STAVE SCROLLER CANVAS -->
+        <section>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 18px; font-weight: 700; color: #c084fc; margin: 0;">🎼 Live Scrolling Musical Stave Tracker</h2>
+                <span id="liveBadge" style="background-color: #1f2937; color: #6b7280; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 800;">OFFLINE</span>
             </div>
             
-            <div class="visual-display">
-                <div id="bigNote">--</div>
-                <div id="freqDisplay" style="font-size:14px; color:#64748b; margin-top:8px;">0.00 Hz</div>
+            <div class="stave-wrapper">
+                <canvas id="musicCanvas"></canvas>
             </div>
         </section>
 
-        <!-- CARD 3: Lower Band Data Parameter Diagnostics Matrix -->
-        <section class="lower-band">
-            <h2 style="font-size:20px; font-weight:700; color:#fbbf24; margin:0;">📝 Technical Diagnostics & Smart Feedback</h2>
+        <!-- DIAGNOSTICS & ANALYTICS REPORTING PANELS -->
+        <section class="full-row">
+            <h2 style="font-size: 18px; font-weight: 700; color: #fbbf24; margin: 0;">📊 Real-Time Diagnostic Feed & Syllabus Tracking</h2>
             
-            <div class="param-grid">
-                <div class="param-card">
-                    <div class="param-title">Target Curriculum Note</div>
-                    <div id="targetNoteDisplay" class="param-value">Note G4 (392 Hz)</div>
+            <div class="grid-4">
+                <div class="metric-card">
+                    <div class="metric-title">KSSR Song Exercise Module</div>
+                    <div id="songDisplay" class="metric-value" style="color: #e2e8f0; font-size: 16px;">Sukan Tahunan (G4-A4-B4)</div>
                 </div>
-                <div class="param-card">
-                    <div class="param-title">AI Difficulty / Tempo</div>
-                    <div id="tempoDisplay" class="param-value" style="color:#fbbf24;">Normal (75 BPM)</div>
+                <div class="metric-card">
+                    <div class="metric-title">Adaptive Tempo Speed</div>
+                    <div id="tempoDisplay" class="metric-value" style="color: #fbbf24;">72 BPM <span style="font-size:12px; font-weight:normal; color:#6b7280;">(Standard)</span></div>
                 </div>
-                <div class="param-card">
-                    <div class="param-title">Session Accuracy Score</div>
-                    <div id="accuracyDisplay" class="param-value" style="color:#34d399;">0%</div>
+                <div class="metric-card">
+                    <div class="metric-title">Phrase Rhythm & Pitch Accuracy</div>
+                    <div id="accuracyDisplay" class="metric-value" style="color: #10b981;">0%</div>
                 </div>
-                <div class="param-card">
-                    <div class="param-title">Fingering / Vocal Technique Analysis</div>
-                    <div id="diagnosticFeedback" style="font-size:14px; color:#94a3b8; font-weight:500;">Waiting for audio source...</div>
+                <div class="metric-card">
+                    <div class="metric-title">Pedagogical Technique Instruction</div>
+                    <div id="feedbackDisplay" style="font-size: 13px; font-weight: 500; color: #9ca3af; margin-top: 6px; line-height: 1.4;">Awaiting performance streaming sequence input...</div>
                 </div>
             </div>
         </section>
     </main>
 
     <script>
-        let audioContext;
-        let micStream;
-        let pitchEngine;
-        let currentMode = 'singing'; 
-        let isTracking = false;
+        // System Configs & Performance State Parameters
+        let audioCtx, micSource, scriptNode, activeMode = 'singing', isEngineRunning = false;
+        let canvas, ctx;
+        let animationFrameId;
 
-        const kssrTargets = {
-            G4: { minHz: 380, maxHz: 405, label: "G4" },
-            A4: { minHz: 425, maxHz: 455, label: "A4" },
-            B4: { minHz: 480, maxHz: 510, label: "B4" }
+        // Native High-Precision Note Frequency Database Map Matching KSSR Parameters
+        const notationProfile = {
+            'G4': { hz: 392.00, y: 160, name: 'G4' },
+            'A4': { hz: 440.00, y: 145, name: 'A4' },
+            'B4': { hz: 493.88, y: 130, name: 'B4' },
+            'C5': { hz: 523.25, y: 115, name: 'C5' },
+            'D5': { hz: 587.33, y: 100, name: 'D5' },
+            'REST': { hz: 0, y: 0, name: 'REST' }
         };
-        let activeTargetKey = 'G4';
-        let totalChecks = 0;
-        let correctChecks = 0;
-        let currentTempo = 75;
 
-        function setMode(mode) {
-            currentMode = mode;
-            document.getElementById('btnSinging').className = mode === 'singing' ? 'btn-mode btn-active' : 'btn-mode btn-inactive';
-            document.getElementById('btnRecorder').className = mode === 'recorder' ? 'btn-mode btn-active' : 'btn-mode btn-inactive';
+        // Complete 16-Bar Syllabus Song Score Array Matrix: "Lagu Rekoder: Sukan Tahunan"
+        const kssrSukanTahunanSong = [
+            { note: 'G4', beats: 1 }, { note: 'G4', beats: 1 }, { note: 'A4', beats: 1 }, { note: 'A4', beats: 1 },
+            { note: 'B4', beats: 2 }, { note: 'A4', beats: 2 },
+            { note: 'G4', beats: 1 }, { note: 'A4', beats: 1 }, { note: 'B4', beats: 1 }, { note: 'G4', beats: 1 },
+            { note: 'A4', beats: 4 },
+            { note: 'B4', beats: 1 }, { note: 'B4', beats: 1 }, { note: 'C5', beats: 1 }, { note: 'D5', beats: 1 },
+            { note: 'D5', beats: 2 }, { note: 'C5', beats: 2 },
+            { note: 'B4', beats: 1 }, { note: 'A4', beats: 1 }, { note: 'G4', beats: 1 }, { note: 'A4', beats: 1 },
+            { note: 'G4', beats: 4 }
+        ];
+
+        let songNotes = [...kssrSukanTahunanSong];
+        let currentTargetIndex = 0;
+        let currentBeatProgress = 0; 
+        let globalTempo = 72; 
+        let currentFrequency = 0;
+
+        // Score Evaluator Aggregator Storage Block
+        let pitchTicks = 0, validTicks = 0;
+        let pastNotesHistory = [];
+
+        window.addEventListener('load', () => {
+            canvas = document.getElementById('musicCanvas');
+            ctx = canvas.getContext('2d');
+            window.addEventListener('resize', handleCanvasResize);
+            handleCanvasResize();
+        });
+
+        function handleCanvasResize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = 260;
+            renderStaveGraphics();
         }
 
-        async function setupAudio() {
-            if (isTracking) return;
-            document.getElementById('status').innerText = "⏳ Loading AI Audio Engine Framework...";
-            document.getElementById('status').style.color = "#fbbf24";
+        function toggleMode(mode) {
+            activeMode = mode;
+            document.getElementById('modeSinging').className = mode === 'singing' ? 'btn btn-teal' : 'btn btn-slate';
+            document.getElementById('modeRecorder').className = mode === 'recorder' ? 'btn btn-teal' : 'btn btn-slate';
+        }
+
+        async function toggleEngine() {
+            if (isEngineRunning) {
+                stopAudioEngine();
+                return;
+            }
+            
+            const txt = document.getElementById('engineStatus');
+            txt.innerText = "⏳ Initializing native processing arrays...";
+            txt.style.color = "#fbbf24";
 
             try {
-                micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaStreamSource(micStream);
-                const modelUrl = 'https://jsdelivr.net';
-                pitchEngine = ml5.pitchDetection(modelUrl, audioContext, source, modelLoaded);
-            } catch (err) {
-                document.getElementById('status').innerText = "❌ Error: Microphone access denied.";
-                document.getElementById('status').style.color = "#f87171";
-                console.error(err);
-            }
-        }
-
-        function modelLoaded() {
-            isTracking = true;
-            document.getElementById('status').innerText = "🎙️ AI Monitor Live! Speak or Play.";
-            document.getElementById('status').style.color = "#34d399";
-            document.getElementById('aiLabel').innerText = "AI ACTIVE";
-            document.getElementById('aiLabel').style.background = "rgba(52,211,153,0.2)";
-            document.getElementById('aiLabel').style.color = "#34d399";
-            document.getElementById('btnStart').disabled = true;
-            document.getElementById('btnStart').style.background = "#475569";
-            getPitch();
-        }
-
-        function getPitch() {
-            if (!isTracking) return;
-            pitchEngine.getPitch((err, frequency) => {
-                const bigNote = document.getElementById('bigNote');
-                const freqDisplay = document.getElementById('freqDisplay');
-const diagnostic = document.getElementById('diagnosticFeedback');
-            if (frequency) {freqDisplay.innerText = ${frequency.toFixed(2)} Hz;const target = kssrTargets[activeTargetKey];totalChecks++;
-            if (frequency >= target.minHz && frequency <= target.maxHz) {correctChecks++;bigNote.innerText = target.label;bigNote.style.color = "#34d399";diagnostic.innerText = "Excellent Pitch accuracy! Keep holding steady.";diagnostic.style.color = "#34d399";} else {bigNote.style.color = "#f87171";if (currentMode === 'recorder') 
-            {if (frequency > target.maxHz * 1.5) {bigNote.innerText = "⚠️ SQUEAK";diagnostic.innerText = "Squeak detected! Soften breath support and seal holes completely.";} else if (frequency < target.minHz) {bigNote.innerText = "♭ FLAT";diagnostic.innerText = "Too flat. Blow with slightly firmer, more consistent air speed.";} else {bigNote.innerText = "♯ SHARP";diagnostic.innerText = "Too sharp. Relax breath pressure slightly.";}} else {bigNote.innerText = frequency < target.minHz ? "LOW" : "HIGH";diagnostic.innerText = frequency < target.minHz ? "Pitch too low. Support note from diaphragm." : "Pitch too high. Relax vocal cords slightly.";}diagnostic.style.color = "#f87171";}let accuracy = Math.round((correctChecks / totalChecks) * 100);document.getElementById('accuracyDisplay').innerText = ${accuracy}%;
-            if (totalChecks >= 100) {runAdaptiveScaffolding(accuracy);totalChecks = 0; correctChecks = 0;}} else {bigNote.innerText = "--";bigNote.style.color = "#475569";}setTimeout(() => { getPitch(); }, 30);});}function runAdaptiveScaffolding(accuracy) {const tempoDisplay = document.getElementById('tempoDisplay');const targetDisplay = document.getElementById('targetNoteDisplay');
-            if (accuracy >= 80) {if (activeTargetKey === 'G4') { activeTargetKey = 'A4'; currentTempo += 5; targetDisplay.innerText = "Note A4 (440 Hz)"; }else if (activeTargetKey === 'A4') { activeTargetKey = 'B4'; currentTempo += 5; targetDisplay.innerText = "Note B4 (494 Hz)"; }tempoDisplay.innerText = Fast (${currentTempo} BPM);} else if (accuracy < 55) {if (currentTempo > 60) currentTempo -= 10;else if (activeTargetKey === 'B4') activeTargetKey = 'A4';else if (activeTargetKey === 'A4') activeTargetKey = 'G4';targetDisplay.innerText = Note ${activeTargetKey};tempoDisplay.innerText = Slowing down (${currentTempo} BPM);}}
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                micSource = audioCtx.createMediaStreamSource(stream);
+                
+                // Set up buffer processing node size to maintain accuracy on high pitch instruments
+                scriptNode = audioCtx.createScriptProcessor(2048, 1, 1);
+                scriptNode.onaudioprocess = processIncomingAudio;
+                
+                micSource.connect(scriptNode);
+                scriptNode.connect(audioCtx.destination);
+                
+                isEngineRunning = true;
+                txt.innerText = "🎙️ AI Audio Monitor Active! Perform KSSR Piece.";
+                txt.style.color = "#10b981";
+const badge = document.getElementById('liveBadge');
+                badge.innerText = "AI LIVE";
+                badge.style.backgroundColor = "rgba(16,185,129,0.2)";
+                badge.style.color = "#10b981";
+document.getElementById('actionBtn').innerText = "Stop Assessment Engine";
+document.getElementById('actionBtn').className = "btn bg-red-600 hover:bg-red-700 text-white";
+runVisualLoop();} catch (err) {txt.innerText = "❌ Initialization failed: Access Denied.";txt.style.color = "#ef4444";console.error(err);}}
+function stopAudioEngine() {isEngineRunning = false;
+                if (scriptNode) scriptNode.disconnect();
+                if (micSource) micSource.disconnect();
+                if (audioCtx) audioCtx.close();
+                cancelAnimationFrame(animationFrameId);
+document.getElementById('engineStatus').innerText = "System Paused. Assessment stopped.";
+                document.getElementById('engineStatus').style.color = "#9ca3af";
+                document.getElementById('liveBadge').innerText = "OFFLINE";
+                document.getElementById('liveBadge').style.backgroundColor = "#1f2937";
+                document.getElementById('liveBadge').style.color = "#6b7280";
+                document.getElementById('actionBtn').innerText = "Activate Audio Engine";
+                document.getElementById('actionBtn').className = "btn btn-blue";
+                currentFrequency = 0;renderStaveGraphics();}
+// Native High-Performance Autocorrelation Time-Domain Engine for Zero Lagfunction processIncomingAudio(e) {
+        const buffer = e.inputBuffer.getChannelData(0);
+        const sampleRate = audioCtx.sampleRate;
+// Calculate signal power threshold to filter ambient room noiselet rrms = 0;for (let i = 0; i < buffer.length; i++) { rrms += buffer[i] * buffer[i]; }rrms = Math.sqrt(rrms / buffer.length);if (rrms < 0.015) { currentFrequency = 0; return; }
+// Autocorrelation Pitch Processing Function Executionlet maxCorrelation = 0;let bestPeriod = -1;
+        const minPeriod = sampleRate / 700; // Cap ranges matching highest soprano recorder note D5
+        const maxPeriod = sampleRate / 200; // Cap lower ranges matching vocal ranges
+        for (let period = Math.floor(minPeriod); period < Math.floor(maxPeriod); period++) {let correlation = 0;
+        for (let i = 0; i < buffer.length - period; i++) {correlation += buffer[i] * buffer[i + period];}
+        if (correlation > maxCorrelation) {maxCorrelation = correlation;bestPeriod = period;}}
+        if (bestPeriod > 0) {currentFrequency = sampleRate / bestPeriod;}}function runVisualLoop() {if (!isEngineRunning) return;
+// Beat duration calculation mapped precisely to global pacing engine configurations
+        let sampleTicksPerFrame = (globalTempo / 60) / 60;
+        currentBeatProgress += sampleTicksPerFrame;
+        let activeTargetNode = songNotes[currentTargetIndex];
+        if (currentBeatProgress >= activeTargetNode.beats) {currentBeatProgress = 0;calculateSegmentPhraseReport();currentTargetIndex = (currentTargetIndex + 1) % songNotes.length;}
+        evaluateStreamFrame(activeTargetNode);
+        renderStaveGraphics();
+        animationFrameId = requestAnimationFrame(runVisualLoop);}
+        function evaluateStreamFrame(target) {if (currentFrequency <= 0) return;pitchTicks++;
+                                              let targetFreq = notationProfile[target.note].hz;
+                                              let minAllowed = targetFreq * 0.965; // ~50 cents precision threshold tracking grid
+                                              let maxAllowed = targetFreq * 1.035;
+                                              let isCorrect = currentFrequency >= minAllowed && currentFrequency <= maxAllowed;
+// Log history map parameters to display scrolling trace data across drawing grids
+        pastNotesHistory.push({x: 200,freq: currentFrequency,targetY: notationProfile[target.note].y,correct: isCorrect});if (isCorrect) {validTicks++;}if (pastNotesHistory.length > 180) pastNotesHistory.shift();}function renderStaveGraphics() {ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Draw standard 5 musical notation linesctx.strokeStyle = '#27272a';
+        ctx.lineWidth = 2;for (let i = 0; i < 5; i++) {let y = 100 + (i * 15);
+        ctx.beginPath(); ctx.moveTo(0, y); 
+        ctx.lineTo(canvas.width, y); ctx.stroke();}
+// Central Targeting Marker Bar (Where the student is actively playing right now)
+        ctx.strokeStyle = 'rgba(168,85,247,0.4)';
+        ctx.lineWidth = 3;ctx.setLineDash([4, 4]);ctx.beginPath(); ctx.moveTo(200, 40); ctx.lineTo(200, 220); ctx.stroke();ctx.setLineDash([]);if (!isEngineRunning) return;
+// Render scrolling Target Note Sequence Boxes forward in timeline spaces
+    let renderBaseX = 200 - (currentBeatProgress * 60);for (let i = currentTargetIndex; i < songNotes.length + currentTargetIndex; i++) {let idx = i % songNotes.length;let item = songNotes[idx];let profile = notationProfile[item.note];let boxW = item.beats * 60;if (renderBaseX > canvas.width) break;
+// Color configuration matching active play block states
+    if (i === currentTargetIndex) {ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';ctx.strokeStyle = '#38bdf8';} else {ctx.fillStyle = 'rgba(39, 39, 42, 0.4)';ctx.strokeStyle = '#27272a';}ctx.lineWidth = 2;ctx.fillRect(renderBaseX, profile.y - 10, boxW, 20);ctx.strokeRect(renderBaseX, profile.y - 10, boxW, 20);
+// Note identification title print outs
+    ctx.fillStyle = i === currentTargetIndex ? '#38bdf8' : '#71717a';ctx.font = 'bold 11px sans-serif';ctx.fillText(profile.name, renderBaseX + 6, profile.y + 4);renderBaseX += boxW;}
+// Draw historic student performance trajectory pitch trace tracks
+    for (let i = 0; i < pastNotesHistory.length; i++) {let pt = pastNotesHistory[i];pt.x -= 1.2;// Move backward to scroll past notes smoothly off-screen
+// Frequency value mapping algorithm onto canvas coordinate grids
+    let traceY = 160 - ((pt.freq - 392) * 0.45);if (traceY < 30) traceY = 30;if (traceY > 240) traceY = 240;ctx.fillStyle = pt.correct ? '#10b981' : '#ef4444';ctx.beginPath();ctx.arc(pt.x, traceY, 4, 0, 2 * Math.PI);ctx.fill();}}function runDiagnosticHeuristics(inputHz, targetHz, targetNoteName) {const feed = document.getElementById('feedbackDisplay');feed.style.color = "#ef4444";if (activeMode === 'recorder') {
+// Precise execution parameters for KSSR recorder squeak checks
+    if (inputHz > targetHz * 1.35) {feed.innerText = [RECORDER FAULT] Squeak detected on Note ${targetNoteName}! Soften your blowing velocity and seal your finger holes completely.;} else if (inputHz < targetHz) {feed.innerText = [PITCH FLAT] Note ${targetNoteName} is too low. Ensure you sit upright and focus steady, faster air stream down the mouthpiece.;} else {feed.innerText = [PITCH SHARP] Note ${targetNoteName} is too high. Relax your lip pressure (embouchure) slightly to normalize pitch.;}} else {
+// Vocal performance diagnostic evaluation maps
+    if (inputHz < targetHz) {feed.innerText = [VOCAL FLAT] Dropping note target! Relax your neck muscles, open your throat, and drop your jaw to reach the note clearly.;} else {feed.innerText = [VOCAL SHARP] Over-singing detected! Reduce the air pressure coming from your chest and control your breath projection.;}}}
+        function calculateSegmentPhraseReport() {let activeNode = songNotes[currentTargetIndex];let targetHz = notationProfile[activeNode.note].hz;
+// RHYTHM ERROR CRITERIA: Student remained completely silent when a note was scheduled
+    if (pitchTicks === 0) {document.getElementById('accuracyDisplay').innerText = "0%";document.getElementById('accuracyDisplay').style.color = "#ef4444";document.getElementById('feedbackDisplay').innerText = [RHYTHM GAP] Silence detected on Note ${activeNode.note}! You missed the entry beat. Check the scrolling timeline layout.;document.getElementById('feedbackDisplay').style.color = "#f59e0b";triggerAdaptiveScaffoldingEngine(0);return;}let segmentAccuracy = Math.round((validTicks / pitchTicks) * 100);document.getElementById('accuracyDisplay').innerText = ${segmentAccuracy}%;
+    if (segmentAccuracy >= 80) {document.getElementById('accuracyDisplay').style.color = "#10b981";document.getElementById('feedbackDisplay').innerText = "Excellent control and synchronization! Keep your posture steady.";document.getElementById('feedbackDisplay').style.color = "#10b981";} else {document.getElementById('accuracyDisplay').style.color = "#ef4444";runDiagnosticHeuristics(currentFrequency, targetHz, activeNode.note);}triggerAdaptiveScaffoldingEngine(segmentAccuracy);
+// Reset counters for the upcoming note segment phrase block execution
+        pitch Ticks = 0;
+        valid Ticks = 0;}
+function triggerAdaptiveScaffoldingEngine(accuracyScore) {
+    const paceTxt = document.getElementById('tempoDisplay');
+    const songTxt = document.getElementById('songDisplay');
+// ZPD ADAPTIVE REGULATION ARRAY LOGIC
+    if (accuracyScore >= 82) {
+// Progression: Increase pacing difficulty speed automatically
+    if (globalTempo < 105) {
+        globalTempo += 4;
+        paceTxt.innerText = ${globalTempo} BPM (Accelerating);
+        paceTxt.style.color = "#10b981";}
+// Add Year 5 Advanced Note D5 into the loop matrix if student excels
+        if (!songNotes.some(e => e.note === 'D5')) {songNotes = [{ note: 'G4', beats: 1 }, { note: 'A4', beats: 1 }, { note: 'B4', beats: 1 }, { note: 'C5', beats: 1 },{ note: 'D5', beats: 2 }, { note: 'C5', beats: 2 }, { note: 'B4', beats: 4 }];songTxt.innerText = "Sukan Tahunan (Advanced Level Up D5 Loaded)";currentTargetIndex = 0;}} else if (accuracyScore < 50) {
+// Remedial Scaffolding fallback sequence to prevent user panic
+        if (globalTempo > 55) {globalTempo -= 8;paceTxt.innerText = ${globalTempo} BPM (Slowing Down);paceTxt.style.color = "#ef4444";}
+// Simplify song array down to basic 2-Note breathing drill structure
+        if (songNotes.length > 10) {songNotes = [{ note: 'G4', beats: 2 }, { note: 'A4', beats: 2 },{ note: 'G4', beats: 2 }, { note: 'A4', beats: 2 }];songTxt.innerText = "Remedial Mode: G4-A4 Basic Drill";currentTargetIndex = 0;}}}
